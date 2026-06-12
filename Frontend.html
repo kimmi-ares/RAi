@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResilienceAI – Disaster Response Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+--green-dark:#0d3d1e; --green-mid:#1a6b35; --green-bright:#2d9e52;
+--green-light:#4ec97b; --green-pale:#d4f0df;
+--amber:#f59e0b; --red:#ef4444; --red-pale:#fee2e2;
+--off-white:#f5faf6; --text-dark:#0d1f13; --text-mid:#2d4a35;
+--text-light:#6b9475; --card-bg:#fff; --border:#c8e8d4;
+--shadow:0 4px 24px rgba(13,61,30,.10); --shadow-lg:0 12px 40px rgba(13,61,30,.18);
+--radius:16px; --radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--off-white);color:var(--text-dark);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4,h5{font-family:'Sora',sans-serif}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── LOGIN ── */
+#screen-login{background:linear-gradient(160deg,var(--green-dark) 0%,var(--green-mid) 60%,var(--green-bright) 100%);justify-content:center;align-items:center;padding:32px 24px;position:relative;overflow:hidden}
+#screen-login::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.login-card{background:rgba(255,255,255,.97);border-radius:24px;padding:40px 32px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);position:relative;z-index:1;animation:slideUp .6s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.logo-wrap{text-align:center;margin-bottom:28px}
+.logo-icon{width:72px;height:72px;background:linear-gradient(135deg,var(--green-mid),var(--green-bright));border-radius:20px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(45,158,82,.35)}
+.logo-icon svg{width:40px;height:40px}
+.logo-wrap h1{font-size:1.75rem;color:var(--green-dark)}
+.logo-wrap h1 span{color:var(--green-bright)}
+.logo-wrap p{color:var(--text-light);font-size:.85rem;margin-top:4px}
+.form-group{margin-bottom:16px}
+.form-group input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-dark);background:var(--off-white);transition:border-color .2s;outline:none}
+.form-group input:focus{border-color:var(--green-bright);background:#fff}
+.form-group input.error{border-color:var(--red);background:var(--red-pale)}
+.form-error{color:var(--red);font-size:.78rem;margin-top:4px;display:none}
+.form-error.show{display:block}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--green-mid),var(--green-bright));color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,158,82,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-secondary{width:100%;padding:13px;background:transparent;color:var(--green-mid);border:1.5px solid var(--green-mid);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;margin-top:10px}
+.btn-secondary:hover{background:var(--green-pale)}
+.divider{text-align:center;color:var(--text-light);font-size:.82rem;margin:14px 0}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--green-dark);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar .hamburger{background:none;border:none;color:#fff;cursor:pointer;padding:2px}
+.topbar h2{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700}
+.topbar p{font-size:.78rem;opacity:.7;margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.notif-btn{background:rgba(255,255,255,.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--green-dark)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--green-bright);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer}
+
+/* ── SIDE MENU DRAWER ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;left:0;height:100%;width:80%;max-width:300px;background:var(--green-dark);z-index:301;transform:translateX(-100%);transition:transform .3s ease;display:flex;flex-direction:column;padding:0}
+.drawer-overlay.open .drawer{transform:translateX(0)}
+.drawer-header{padding:48px 24px 24px;border-bottom:1px solid rgba(255,255,255,.1)}
+.drawer-header .d-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.drawer-header .d-logo-icon{width:40px;height:40px;background:var(--green-bright);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.drawer-header h3{color:#fff;font-size:1.1rem}
+.drawer-header p{color:rgba(255,255,255,.55);font-size:.78rem;margin-top:2px}
+.drawer-user{padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:12px}
+.drawer-user .du-avatar{width:44px;height:44px;border-radius:50%;background:var(--green-bright);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:#fff}
+.drawer-user .du-name{color:#fff;font-weight:600;font-size:.95rem}
+.drawer-user .du-role{color:rgba(255,255,255,.55);font-size:.75rem;margin-top:2px}
+.drawer-nav{flex:1;padding:16px 0;overflow-y:auto}
+.drawer-nav-item{display:flex;align-items:center;gap:14px;padding:14px 24px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:.92rem}
+.drawer-nav-item:hover,.drawer-nav-item.active{background:rgba(255,255,255,.08);color:#fff}
+.drawer-nav-item .dni-icon{font-size:1.2rem;width:24px;text-align:center}
+.drawer-nav-item .dni-badge{margin-left:auto;background:var(--red);color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.drawer-section-label{padding:12px 24px 4px;color:rgba(255,255,255,.35);font-size:.68rem;font-weight:700;letter-spacing:.8px;font-family:'Sora',sans-serif}
+.drawer-footer{padding:20px 24px;border-top:1px solid rgba(255,255,255,.1)}
+.drawer-footer p{color:rgba(255,255,255,.35);font-size:.72rem}
+.drawer-close-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{background:var(--green-dark);display:flex;padding:8px 0 12px;flex-shrink:0;position:sticky;bottom:0;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.2)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:rgba(255,255,255,.55);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.68rem;padding:4px 0;transition:color .2s}
+.nav-item.active{color:var(--green-light)}
+.nav-item svg{width:22px;height:22px}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:20px 16px 8px}
+.content-header{margin-bottom:20px}
+.content-header h2{font-size:1.4rem;color:var(--green-dark);font-weight:800}
+.content-header p{color:var(--text-light);font-size:.85rem;margin-top:2px}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--card-bg);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-card .stat-icon{font-size:1.3rem;margin-bottom:4px}
+.stat-card .stat-val{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;color:var(--green-dark)}
+.stat-card .stat-val.red{color:var(--red)}.stat-card .stat-val.amber{color:var(--amber)}.stat-card .stat-val.green{color:var(--green-bright)}
+.stat-card .stat-label{font-size:.62rem;color:var(--text-light);margin-top:2px;line-height:1.3}
+
+/* ── SECTION HDR ── */
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.section-hdr h3{font-size:1rem;font-weight:700;color:var(--green-dark)}
+.view-all{background:none;border:none;color:var(--green-bright);font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── ALERT CARDS ── */
+.alert-card{background:var(--card-bg);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid var(--red);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:transform .15s}
+.alert-card:hover{transform:translateX(2px)}
+.alert-card.amber{border-left-color:var(--amber)}.alert-card.green{border-left-color:var(--green-bright)}
+.alert-icon{font-size:1.4rem;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1}
+.alert-title{font-weight:600;font-size:.92rem;color:var(--text-dark)}
+.alert-sub{font-size:.78rem;color:var(--text-light);margin-top:2px}
+.alert-meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.alert-time{font-size:.72rem;color:var(--text-light)}
+.badge{font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.4px}
+.badge.red{background:var(--red-pale);color:var(--red)}.badge.amber{background:#fef3c7;color:#92400e}.badge.green{background:var(--green-pale);color:var(--green-dark)}
+
+/* ── DONUT ── */
+.reports-card{background:var(--card-bg);border-radius:var(--radius);padding:18px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:20px}
+.donut-wrap{position:relative;width:90px;height:90px;flex-shrink:0}
+.donut-wrap svg{width:90px;height:90px;transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-center span{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;color:var(--green-dark)}
+.donut-center small{font-size:.6rem;color:var(--text-light)}
+.donut-legend{flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.8rem}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend-item span{flex:1;color:var(--text-mid)}
+.legend-item strong{color:var(--text-dark);font-family:'Sora',sans-serif}
+
+/* ── PROGRESS ── */
+.progress-card{background:var(--card-bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.progress-label{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-label span{font-size:.85rem;color:var(--text-mid)}
+.progress-label strong{font-family:'Sora',sans-serif;font-size:.9rem;color:var(--green-dark)}
+.progress-bar{height:10px;background:#e0f0e8;border-radius:20px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green-mid),var(--green-light));transition:width 1.2s ease}
+
+/* ── FEATURE CARDS ── */
+.feature-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:8px}
+.feature-card{background:var(--card-bg);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s}
+.feature-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--green-bright)}
+.feature-icon{width:52px;height:52px;border-radius:14px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.feature-text h4{font-size:.95rem;font-weight:700;color:var(--green-dark)}
+.feature-text p{font-size:.78rem;color:var(--text-light);margin-top:3px;line-height:1.4}
+.feature-arrow{margin-left:auto;color:var(--text-light);font-size:1.2rem}
+
+/* ── BACK BTN ── */
+.back-btn{background:none;border:none;color:var(--green-mid);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.9rem;display:flex;align-items:center;gap:6px;padding:0;margin-bottom:16px;font-weight:500}
+
+/* ── CANVAS MAP ── */
+.map-container{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;position:relative}
+.map-container canvas{display:block;width:100%;cursor:pointer}
+.map-overlay-legend{position:absolute;bottom:12px;left:12px;background:rgba(255,255,255,.92);border-radius:var(--radius-sm);padding:8px 12px;backdrop-filter:blur(4px)}
+.map-legend-item{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--text-dark);margin-bottom:3px}
+.map-legend-dot{width:8px;height:8px;border-radius:50%}
+.map-overlay-btn{position:absolute;top:12px;right:12px;background:var(--green-dark);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 12px;font-family:'Sora',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer}
+
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed var(--green-bright);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;background:var(--green-pale);margin-bottom:16px;transition:all .2s;position:relative}
+.upload-zone:hover{background:#c0e8cf;border-color:var(--green-mid)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone .upload-icon{font-size:2.5rem;margin-bottom:8px}
+.upload-zone p{color:var(--green-mid);font-weight:500;font-size:.92rem}
+.upload-zone small{color:var(--text-light);font-size:.78rem}
+.thumbnail-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.thumb-wrap{position:relative;display:inline-block;width:72px;height:72px}
+.thumb-wrap img{width:72px;height:72px;border-radius:var(--radius-sm);object-fit:cover;border:2px solid var(--border);display:block}
+.thumb-remove{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;z-index:2}
+
+/* ── STEPPER ── */
+.stepper-row{display:flex;align-items:center;margin-bottom:24px}
+.step{display:flex;flex-direction:column;align-items:center;gap:4px}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-family:'Sora',sans-serif;font-weight:700;background:var(--border);color:var(--text-light);transition:all .3s}
+.step-circle.active{background:var(--green-bright);color:#fff}
+.step-circle.done{background:var(--green-dark);color:#fff}
+.step-label{font-size:.65rem;color:var(--text-light);transition:color .3s}
+.step-label.active{color:var(--green-bright);font-weight:600}
+.step-label.done{color:var(--green-dark);font-weight:600}
+.step-line{flex:1;height:2px;background:var(--border);margin-bottom:16px;transition:background .3s}
+.step-line.done{background:var(--green-bright)}
+
+/* ── AI BOX ── */
+.ai-box{background:linear-gradient(135deg,var(--green-dark),var(--green-mid));border-radius:var(--radius);padding:28px 20px;text-align:center;color:#fff;margin-bottom:20px}
+.ai-pulse{width:80px;height:80px;margin:0 auto 16px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(78,201,123,.4)}50%{transform:scale(1.05);box-shadow:0 0 0 16px rgba(78,201,123,0)}}
+.ai-box h3{font-size:1.1rem;margin-bottom:8px}
+.ai-box p{opacity:.8;font-size:.85rem}
+.detection-list{list-style:none;margin-bottom:20px}
+.detection-item{background:var(--card-bg);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);border:1px solid var(--border);animation:fadeIn .4s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.detection-item:nth-child(2){animation-delay:.1s}.detection-item:nth-child(3){animation-delay:.2s}.detection-item:nth-child(4){animation-delay:.3s}
+.check-icon{width:24px;height:24px;background:var(--green-bright);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;flex-shrink:0}
+.detection-item span{font-size:.88rem;color:var(--text-mid);font-weight:500}
+.detection-item .detected{margin-left:auto;color:var(--green-bright);font-size:.78rem;font-weight:600}
+.confidence-bar{height:4px;background:#e0f0e8;border-radius:2px;margin-top:4px;overflow:hidden}
+.confidence-fill{height:100%;background:var(--green-bright);border-radius:2px}
+
+/* ── REPORT ── */
+.report-summary{background:var(--card-bg);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px}
+.report-total{margin-bottom:16px}
+.report-total .label{font-size:.82rem;color:var(--text-light)}
+.report-total .amount{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;color:var(--green-dark);margin-top:4px}
+.report-total .currency{font-size:1rem;color:var(--text-light)}
+.breakdown-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.breakdown-item:last-child{border-bottom:none}
+.breakdown-item .item-name{font-size:.85rem;color:var(--text-mid)}
+.breakdown-item .item-val{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;color:var(--text-dark)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.detail-item{background:var(--off-white);border-radius:var(--radius-sm);padding:10px 12px}
+.detail-item .d-label{font-size:.7rem;color:var(--text-light)}
+.detail-item .d-val{font-size:.85rem;font-weight:600;color:var(--text-dark);margin-top:2px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-outline{padding:12px;background:transparent;color:var(--green-mid);border:1.5px solid var(--green-mid);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.btn-outline:hover{background:var(--green-pale)}
+
+/* ── COMPARE ── */
+.compare-card{background:var(--card-bg);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
+.compare-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.compare-img{position:relative}
+.compare-img img{width:100%;height:160px;object-fit:cover;display:block}
+.compare-label{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:.7rem;font-weight:600;padding:3px 8px;border-radius:20px;font-family:'Sora',sans-serif}
+.compare-label.after{background:var(--red)}
+.compare-body{padding:16px}
+.compare-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.compare-stat:last-child{border-bottom:none}
+.compare-stat .c-key{color:var(--text-light)}
+.compare-stat .c-val{font-weight:600;color:var(--text-dark)}
+.compare-stat .c-val.red{color:var(--red)}
+
+/* ── COORD ── */
+.coord-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.coord-card{background:var(--card-bg);border-radius:var(--radius);padding:18px 14px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.coord-card:hover{transform:translateY(-2px);border-color:var(--green-bright)}
+.coord-card .cc-icon{font-size:1.8rem;margin-bottom:8px}
+.coord-card h4{font-size:.88rem;font-weight:700;color:var(--green-dark)}
+.coord-card p{font-size:.72rem;color:var(--text-light);margin-top:4px;line-height:1.4}
+
+/* ── SEND ALERT FORM ── */
+.send-alert-form{background:var(--card-bg);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;display:none}
+.send-alert-form.open{display:block}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:.82rem;font-weight:600;color:var(--text-mid);margin-bottom:6px}
+.form-row input,.form-row select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-dark);background:#fff;outline:none}
+.form-row input:focus,.form-row select:focus{border-color:var(--green-bright)}
+
+/* ── FARMER ── */
+.farmer-list{list-style:none}
+.farmer-item{background:var(--card-bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.farmer-item:hover{border-color:var(--green-bright)}
+.farmer-item-icon{width:42px;height:42px;border-radius:12px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.farmer-item-text h4{font-size:.9rem;font-weight:700;color:var(--green-dark)}
+.farmer-item-text p{font-size:.75rem;color:var(--text-light);margin-top:2px}
+.help-card{background:linear-gradient(135deg,var(--green-mid),var(--green-bright));border-radius:var(--radius);padding:18px;color:#fff;display:flex;align-items:center;gap:16px;margin-top:8px}
+.help-card p{font-size:.85rem;opacity:.9}
+.help-card h4{font-size:.95rem;font-weight:700}
+.btn-help{margin-left:auto;background:#fff;color:var(--green-dark);border:none;border-radius:var(--radius-sm);padding:8px 14px;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green-dark);color:#fff;padding:12px 20px;border-radius:30px;font-size:.85rem;font-family:'Sora',sans-serif;font-weight:500;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── ALERTS FULL ── */
+.alert-full{background:var(--card-bg);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.alert-full-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.alert-full-header .icon{font-size:1.6rem}
+.alert-full-header h4{font-size:.95rem;font-weight:700;color:var(--text-dark);flex:1}
+.alert-full p{font-size:.82rem;color:var(--text-mid);line-height:1.6}
+.alert-full-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.alert-full-footer span{font-size:.72rem;color:var(--text-light)}
+
+/* ── REPORTS LIST ── */
+.report-list-item{background:var(--card-bg);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.report-list-item:hover{border-color:var(--green-bright)}
+.rli-top{display:flex;justify-content:space-between;align-items:flex-start}
+.rli-title{font-weight:700;font-size:.9rem;color:var(--green-dark)}
+.rli-id{font-size:.7rem;color:var(--text-light);margin-top:2px}
+.rli-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.rli-meta span{font-size:.75rem;color:var(--text-mid)}
+.filter-btn{background:var(--card-bg);color:var(--text-mid);border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s}
+.filter-btn.active-filter{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
+
+/* ── MODAL BOTTOM SHEET ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--card-bg);border-radius:24px 24px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-close{background:var(--off-white);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;float:right;margin-top:-8px}
+
+/* ── WELCOME HERO ── */
+.welcome-hero{background:linear-gradient(135deg,var(--green-dark),var(--green-mid));border-radius:var(--radius);padding:24px 20px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
+.welcome-hero::after{content:'🌿';position:absolute;right:16px;bottom:-4px;font-size:5rem;opacity:.15}
+.welcome-hero small{opacity:.75;font-size:.8rem}
+.welcome-hero h2{font-size:1.3rem;margin:6px 0 4px;font-weight:800}
+.welcome-hero p{opacity:.85;font-size:.85rem;line-height:1.5}
+
+/* ── LOADING ── */
+.loading-bar{height:4px;background:var(--green-pale);border-radius:2px;overflow:hidden;margin:8px 0 16px}
+.loading-fill{height:100%;background:linear-gradient(90deg,var(--green-mid),var(--green-light),var(--green-mid));background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── AI BADGE ── */
+.ai-powered-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--green-dark),var(--green-mid));color:#fff;border-radius:20px;padding:4px 12px;font-size:.72rem;font-family:'Sora',sans-serif;font-weight:600;margin-bottom:12px}
+
+/* ── COMPLETE BADGE ── */
+.complete-badge{background:var(--green-pale);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:20px;border:1px solid var(--green-bright)}
+.complete-badge .check-big{font-size:2.5rem;margin-bottom:8px}
+.complete-badge h3{color:var(--green-dark);font-size:1.1rem}
+.complete-badge p{color:var(--text-light);font-size:.82rem;margin-top:4px}
+
+.mt-16{margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="screen-login" class="screen active">
+<div class="login-card">
+<div class="logo-wrap">
+<div class="logo-icon">
+<svg viewBox="0 0 40 40" fill="none"><path d="M20 4L36 12V20C36 28.8 29.6 37 20 39C10.4 37 4 28.8 4 20V12L20 4Z" fill="rgba(255,255,255,.2)" stroke="white" stroke-width="2"/><path d="M14 20L18 24L26 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="20" r="6" stroke="white" stroke-width="1.5" fill="none"/></svg>
+</div>
+<h1>Resilience<span>AI</span></h1>
+<p>Disaster Response Platform</p>
+</div>
+<p style="text-align:center;color:var(--text-light);font-size:.82rem;margin-bottom:20px;line-height:1.5">Stronger communities.<br>Smarter response.</p>
+<div class="form-group">
+<input type="email" placeholder="✉ Email address" id="login-email">
+<div class="form-error" id="email-error">Please enter a valid email address.</div>
+</div>
+<div class="form-group">
+<input type="password" placeholder="🔒 Password" id="login-pwd">
+<div class="form-error" id="pwd-error">Password must be at least 6 characters.</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:.82rem">
+<label style="display:flex;align-items:center;gap:6px;color:var(--text-mid);cursor:pointer"><input type="checkbox" checked> Remember me</label>
+<button onclick="showToast('Password reset sent!')" style="background:none;border:none;color:var(--green-bright);cursor:pointer;font-size:.82rem">Forgot password?</button>
+</div>
+<button class="btn-primary" onclick="doLogin()">Login</button>
+<div class="divider">or</div>
+<button class="btn-secondary" onclick="doLogin()">Create Account</button>
+<p style="text-align:center;margin-top:14px;font-size:.75rem;color:var(--text-light)">Demo: any email & password (6+ chars) ✓</p>
+</div>
+</div>
+
+<!-- ════ MAIN APP ════ -->
+<div id="screen-app" class="screen" style="background:var(--off-white)">
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
+<div class="drawer" id="drawer">
+<button class="drawer-close-btn" onclick="toggleDrawer()">✕</button>
+<div class="drawer-header">
+<div class="d-logo">
+<div class="d-logo-icon">🛡️</div>
+<div>
+<h3>ResilienceAI</h3>
+<p>v1.0 · Jamaica Network</p>
+</div>
+</div>
+</div>
+<div class="drawer-user">
+<div class="du-avatar" id="drawer-avatar">EU</div>
+<div>
+<div class="du-name" id="drawer-name">Emergency User</div>
+<div class="du-role">Field Coordinator</div>
+</div>
+</div>
+<div class="drawer-nav">
+<div class="drawer-section-label">MAIN</div>
+<button class="drawer-nav-item active" onclick="drawerNav('home')"><span class="dni-icon">🏠</span>Dashboard</button>
+<button class="drawer-nav-item" onclick="drawerNav('map')"><span class="dni-icon">🗺️</span>Live Map</button>
+<button class="drawer-nav-item" onclick="drawerNav('alerts')"><span class="dni-icon">🚨</span>Alerts<span class="dni-badge" id="drawer-alert-count">8</span></button>
+<button class="drawer-nav-item" onclick="drawerNav('reports')"><span class="dni-icon">📋</span>Reports</button>
+<div class="drawer-section-label">TOOLS</div>
+<button class="drawer-nav-item" onclick="drawerNav('damage')"><span class="dni-icon">📸</span>Damage Report</button>
+<button class="drawer-nav-item" onclick="drawerNav('coord')"><span class="dni-icon">🤝</span>Emergency Coord.</button>
+<button class="drawer-nav-item" onclick="drawerNav('farmer')"><span class="dni-icon">🌱</span>Farmer Recovery</button>
+<div class="drawer-section-label">ACCOUNT</div>
+<button class="drawer-nav-item" onclick="showToast('Profile settings coming soon');toggleDrawer()"><span class="dni-icon">👤</span>Profile Settings</button>
+<button class="drawer-nav-item" onclick="showToast('Help & support coming soon');toggleDrawer()"><span class="dni-icon">❓</span>Help & Support</button>
+<button class="drawer-nav-item" onclick="doLogout()"><span class="dni-icon">🚪</span>Log Out</button>
+</div>
+<div class="drawer-footer">
+<p>ResilienceAI · Team Apex · 2026<br>Agriculture & Food Security Track</p>
+</div>
+</div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+<div class="topbar-left">
+<button class="hamburger" onclick="toggleDrawer()">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="14" x2="17" y2="14"/></svg>
+</button>
+<div>
+<p style="font-size:.72rem;opacity:.7">Welcome,</p>
+<h2 id="topbar-username">Emergency User</h2>
+</div>
+</div>
+<div class="topbar-right">
+<button class="notif-btn" onclick="goToTab('alerts')">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 16H2M15 8a5 5 0 00-10 0v4l-2 2h14l-2-2V8zM9 20a2 2 0 004 0H9z"/></svg>
+<div class="notif-dot"></div>
+</button>
+<div class="avatar" id="topbar-avatar">EU</div>
+</div>
+</div>
+
+<!-- TAB AREA -->
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+
+<!-- ── HOME ── -->
+<div id="tab-home" class="content" style="display:block">
+<div class="welcome-hero">
+<small>🌍 Jamaica Disaster Network</small>
+<h2>Command Center</h2>
+<p>Real-time overview of all active incidents and recovery operations.</p>
+</div>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-icon">🚨</div><div class="stat-val red" id="stat-alerts">8</div><div class="stat-label">Live Alerts</div></div>
+<div class="stat-card"><div class="stat-icon">📋</div><div class="stat-val amber" id="stat-reports">24</div><div class="stat-label">Damage Reports</div></div>
+<div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-val green">12</div><div class="stat-label">Active Shelters</div></div>
+<div class="stat-card"><div class="stat-icon">📈</div><div class="stat-val green">87%</div><div class="stat-label">Recovery</div></div>
+</div>
+
+<!-- LIVE MINI MAP -->
+<div class="section-hdr">
+<h3>🗺️ Live Incident Map</h3>
+<button class="view-all" onclick="goToTab('map')">Full map</button>
+</div>
+<div class="map-container" style="height:200px">
+<canvas id="mini-map" height="200" onclick="goToTab('map')"></canvas>
+<div class="map-overlay-legend">
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--red)"></div> High Risk</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--amber)"></div> Moderate</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--green-bright)"></div> Shelter</div>
+</div>
+<button class="map-overlay-btn" onclick="goToTab('map')">Expand →</button>
+</div>
+
+<div class="section-hdr"><h3>⚠️ Live Alerts</h3><button class="view-all" onclick="goToTab('alerts')">View all</button></div>
+<div class="alert-card" onclick="goToTab('alerts')">
+<div class="alert-icon">🌊</div>
+<div class="alert-body"><div class="alert-title">Flood Warning – River Flooding</div><div class="alert-sub">Saint George Parish</div><div class="alert-meta"><span class="alert-time">2 min ago</span><span class="badge red">HIGH RISK</span></div></div>
+</div>
+<div class="alert-card amber" onclick="goToTab('alerts')">
+<div class="alert-icon">🌀</div>
+<div class="alert-body"><div class="alert-title">Tropical Storm Watch</div><div class="alert-sub">Kingston & St. Andrew</div><div class="alert-meta"><span class="alert-time">18 min ago</span><span class="badge amber">MODERATE</span></div></div>
+</div>
+
+<div class="section-hdr" style="margin-top:16px"><h3>📊 Reports Overview</h3><button class="view-all" onclick="goToTab('reports')">View all</button></div>
+<div class="reports-card">
+<div class="donut-wrap">
+<svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="35" stroke="#e0f0e8" stroke-width="10" fill="none"/><circle cx="45" cy="45" r="35" stroke="#f59e0b" stroke-width="10" fill="none" stroke-dasharray="220" stroke-dashoffset="147" stroke-linecap="round"/><circle cx="45" cy="45" r="35" stroke="#2d9e52" stroke-width="10" fill="none" stroke-dasharray="220" stroke-dashoffset="190" stroke-linecap="round" style="transform:rotate(133deg);transform-origin:50% 50%"/></svg>
+<div class="donut-center"><span id="donut-total">24</span><small>Total</small></div>
+</div>
+<div class="donut-legend">
+<div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span>Pending</span><strong>8</strong></div>
+<div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span>Under Review</span><strong>10</strong></div>
+<div class="legend-item"><div class="legend-dot" style="background:#2d9e52"></div><span>Completed</span><strong>6</strong></div>
+</div>
+</div>
+
+<div class="section-hdr"><h3>📈 Recovery Progress</h3></div>
+<div class="progress-card">
+<div class="progress-label"><span>Overall Recovery</span><strong>87%</strong></div>
+<div class="progress-bar"><div class="progress-fill" id="prog-bar" style="width:0%"></div></div>
+</div>
+
+<div class="section-hdr" style="margin-top:4px"><h3>🧭 Quick Actions</h3></div>
+<div class="feature-grid">
+<div class="feature-card" onclick="goToTab('damage')"><div class="feature-icon">📸</div><div class="feature-text"><h4>Damage Reporting</h4><p>AI-powered damage analysis & reports</p></div><span class="feature-arrow">›</span></div>
+<div class="feature-card" onclick="goToTab('coord')"><div class="feature-icon">🤝</div><div class="feature-text"><h4>Emergency Coordination</h4><p>Coordinate response teams & resources</p></div><span class="feature-arrow">›</span></div>
+<div class="feature-card" onclick="goToTab('farmer')"><div class="feature-icon">🌱</div><div class="feature-text"><h4>Farmer Recovery</h4><p>Support farmers with grants & recovery</p></div><span class="feature-arrow">›</span></div>
+</div>
+</div>
+
+<!-- ── MAP ── -->
+<div id="tab-map" class="content" style="display:none">
+<div class="content-header"><h2>🗺️ Live Map</h2><p>Real-time disaster & resource tracking</p></div>
+<div class="map-container" style="height:320px">
+<canvas id="full-map" height="320"></canvas>
+<div class="map-overlay-legend">
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--red)"></div> High Risk</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--amber)"></div> Moderate</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--green-bright)"></div> Shelter Active</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:#ff8c00"></div> Road Damage</div>
+</div>
+</div>
+<p style="font-size:.75rem;color:var(--text-light);text-align:center;margin-bottom:16px">Tap a pin to see incident details</p>
+<div class="section-hdr"><h3>📍 Active Incidents</h3></div>
+<div class="alert-card"><div class="alert-icon">🌊</div><div class="alert-body"><div class="alert-title">Saint George – River Flooding</div><div class="alert-sub">Affected area: 2.4 km² · Severity: High</div><div class="alert-meta"><span class="alert-time">Active</span><span class="badge red">HIGH</span></div></div></div>
+<div class="alert-card amber"><div class="alert-icon">🏚️</div><div class="alert-body"><div class="alert-title">Westmoreland – Road Damage</div><div class="alert-sub">Main road impassable · Detour active</div><div class="alert-meta"><span class="alert-time">Active</span><span class="badge amber">MEDIUM</span></div></div></div>
+<div class="alert-card green"><div class="alert-icon">🏠</div><div class="alert-body"><div class="alert-title">St. Ann Shelter – Capacity 75%</div><div class="alert-sub">145 / 200 occupants · Supplies adequate</div><div class="alert-meta"><span class="alert-time">Stable</span><span class="badge green">STABLE</span></div></div></div>
+</div>
+
+<!-- ── ALERTS ── -->
+<div id="tab-alerts" class="content" style="display:none">
+<div class="content-header"><h2>🚨 All Alerts</h2><p id="alerts-subtitle">8 active alerts across Jamaica</p></div>
+
+<!-- Send Alert Button -->
+<button class="btn-primary" style="margin-bottom:16px" onclick="toggleSendAlert()">+ Send New Alert</button>
+
+<!-- Send Alert Form -->
+<div class="send-alert-form" id="sendAlertForm">
+<h4 style="color:var(--green-dark);margin-bottom:14px;font-size:.95rem">📢 Send Emergency Alert</h4>
+<div class="form-row">
+<label>Alert Type</label>
+<select id="alert-type">
+<option value="🌊 Flood Warning">🌊 Flood Warning</option>
+<option value="🌀 Tropical Storm Watch">🌀 Tropical Storm Watch</option>
+<option value="🏚️ Infrastructure Damage">🏚️ Infrastructure Damage</option>
+<option value="⚡ Power Outage">⚡ Power Outage</option>
+<option value="🔥 Fire Alert">🔥 Fire Alert</option>
+<option value="⚠️ General Emergency">⚠️ General Emergency</option>
+</select>
+</div>
+<div class="form-row">
+<label>Severity</label>
+<select id="alert-severity">
+<option value="HIGH">🔴 HIGH RISK</option>
+<option value="MODERATE">🟡 MODERATE</option>
+<option value="INFO">🟢 INFO</option>
+</select>
+</div>
+<div class="form-row">
+<label>Location / Parish</label>
+<input type="text" id="alert-location" placeholder="e.g. Saint George Parish" value="">
+</div>
+<div class="form-row">
+<label>Message</label>
+<input type="text" id="alert-message" placeholder="Brief description of the situation">
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+<button class="btn-primary" onclick="sendAlert()">Send Alert</button>
+<button class="btn-outline" onclick="toggleSendAlert()">Cancel</button>
+</div>
+</div>
+
+<!-- Filter Buttons -->
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button onclick="filterAlerts('all')" id="af-all" class="filter-btn active-filter">All</button>
+<button onclick="filterAlerts('HIGH')" id="af-HIGH" class="filter-btn">High Risk</button>
+<button onclick="filterAlerts('MODERATE')" id="af-MODERATE" class="filter-btn">Moderate</button>
+<button onclick="filterAlerts('INFO')" id="af-INFO" class="filter-btn">Info</button>
+</div>
+
+<!-- Live Alert List -->
+<div id="alerts-list">
+<div class="alert-full" data-severity="HIGH">
+<div class="alert-full-header"><span class="icon">🌊</span><h4>Flood Warning – River Flooding</h4><span class="badge red">HIGH RISK</span></div>
+<p>Major flooding reported along the Rio Cobre. Residents in low-lying areas of Saint George Parish advised to evacuate immediately. Water levels rising at 15cm/hour.</p>
+<div class="alert-full-footer"><span>📍 Saint George Parish</span><span>2 min ago</span></div>
+</div>
+<div class="alert-full" data-severity="MODERATE">
+<div class="alert-full-header"><span class="icon">🌀</span><h4>Tropical Storm Watch</h4><span class="badge amber">MODERATE</span></div>
+<p>Tropical Storm Nadia tracking toward Kingston. Expected landfall in 18 hours. Winds 75 km/h. All residents should prepare emergency kits and stay informed.</p>
+<div class="alert-full-footer"><span>📍 Kingston & St. Andrew</span><span>18 min ago</span></div>
+</div>
+<div class="alert-full" data-severity="MODERATE">
+<div class="alert-full-header"><span class="icon">🏚️</span><h4>Road Infrastructure Damage</h4><span class="badge amber">MODERATE</span></div>
+<p>Highway A1 in Westmoreland impassable due to landslide. Emergency crews dispatched. Estimated clearance time: 6 hours. Use Highway B12 as detour.</p>
+<div class="alert-full-footer"><span>📍 Westmoreland</span><span>45 min ago</span></div>
+</div>
+<div class="alert-full" data-severity="MODERATE">
+<div class="alert-full-header"><span class="icon">⚡</span><h4>Power Outage Alert</h4><span class="badge amber">MODERATE</span></div>
+<p>Power outages affecting 3,200 homes in Clarendon following storm damage to transmission lines. JPS crews working to restore service. Estimated restoration: 12 hours.</p>
+<div class="alert-full-footer"><span>📍 Clarendon</span><span>1 hr ago</span></div>
+</div>
+<div class="alert-full" data-severity="HIGH">
+<div class="alert-full-header"><span class="icon">🌊</span><h4>Storm Surge Warning</h4><span class="badge red">HIGH RISK</span></div>
+<p>Storm surge of 2–3 metres expected along the southern coast of Saint Elizabeth. Coastal residents must evacuate to higher ground immediately.</p>
+<div class="alert-full-footer"><span>📍 Saint Elizabeth</span><span>1.5 hr ago</span></div>
+</div>
+<div class="alert-full" data-severity="INFO" style="border:1px solid var(--green-bright)">
+<div class="alert-full-header"><span class="icon">✅</span><h4>Shelter Now Open – St. Ann Bay</h4><span class="badge green">INFO</span></div>
+<p>Emergency shelter at St. Ann Bay Community Centre is now open. Capacity for 200 persons. Food, water and medical support available. Bring ID if possible.</p>
+<div class="alert-full-footer"><span>📍 St. Ann</span><span>2 hr ago</span></div>
+</div>
+</div>
+</div>
+
+<!-- ── DAMAGE ── -->
+<div id="tab-damage" class="content" style="display:none">
+<!-- UPLOAD VIEW -->
+<div id="damage-upload-view">
+<button class="back-btn" onclick="goToTab('home')">‹ Back</button>
+<div class="content-header"><h2>📸 Damage Reporting</h2><p>AI-powered damage analysis</p></div>
+<div class="stepper-row">
+<div class="step"><div class="step-circle done" id="step1">✓</div><span class="step-label done" id="step1-lbl">Upload</span></div>
+<div class="step-line" id="line1"></div>
+<div class="step"><div class="step-circle" id="step2">2</div><span class="step-label" id="step2-lbl">Analyze</span></div>
+<div class="step-line" id="line2"></div>
+<div class="step"><div class="step-circle" id="step3">3</div><span class="step-label" id="step3-lbl">Report</span></div>
+</div>
+<h3 style="font-size:1rem;margin-bottom:8px;color:var(--green-dark)">Upload Photos or Videos</h3>
+<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">Capture or upload images/videos of the damage for AI analysis.</p>
+<div class="upload-zone">
+<input type="file" accept="image/*,video/*" multiple id="fileInput" onchange="handleFileInput(this)">
+<div class="upload-icon">☁️</div>
+<p>Tap to upload or drag and drop</p>
+<small>JPG, PNG, MP4 up to 100MB</small>
+</div>
+<div class="thumbnail-row" id="thumbRow"></div>
+<div style="margin-bottom:12px">
+<label style="font-size:.85rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">📍 Location</label>
+<input type="text" value="Saint George Parish, Jamaica" id="locationInput" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-dark);background:#fff;outline:none">
+</div>
+<div style="margin-bottom:16px">
+<label style="font-size:.85rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">🏷️ Damage Category</label>
+<select id="damageCategory" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-dark);background:#fff;outline:none">
+<option>Crop & Field Damage</option>
+<option>Infrastructure Damage</option>
+<option>Livestock Loss</option>
+<option>Mixed Damage</option>
+</select>
+</div>
+<button class="btn-primary" onclick="startAnalysis()">Next: Analyze with AI →</button>
+</div>
+
+<!-- ANALYSIS VIEW -->
+<div id="damage-analysis-view" style="display:none">
+<button class="back-btn" onclick="showUploadView()">‹ Back</button>
+<div class="content-header"><h2>🤖 AI Damage Analysis</h2><p>Powered by ResilienceAI</p></div>
+<div class="ai-powered-badge">🧠 Claude AI · Real-time Analysis</div>
+<div class="ai-box" id="aiBox">
+<div class="ai-pulse">🧠</div>
+<h3>Analyzing images…</h3>
+<p>Processing damage data from your location.</p>
+<div class="loading-bar" style="margin-top:16px"><div class="loading-fill"></div></div>
+</div>
+<ul class="detection-list" id="detectionList" style="display:none">
+<li class="detection-item"><div class="check-icon">✓</div><div style="flex:1"><span>🌊 Flooded fields</span><div class="confidence-bar"><div class="confidence-fill" style="width:94%"></div></div></div><span class="detected">94%</span></li>
+<li class="detection-item"><div class="check-icon">✓</div><div style="flex:1"><span>🌾 Destroyed crops</span><div class="confidence-bar"><div class="confidence-fill" style="width:88%"></div></div></div><span class="detected">88%</span></li>
+<li class="detection-item"><div class="check-icon">✓</div><div style="flex:1"><span>🏗️ Damaged infrastructure</span><div class="confidence-bar"><div class="confidence-fill" style="width:76%"></div></div></div><span class="detected">76%</span></li>
+<li class="detection-item"><div class="check-icon">✓</div><div style="flex:1"><span>🐄 Livestock impact</span><div class="confidence-bar"><div class="confidence-fill" style="width:61%"></div></div></div><span class="detected">61%</span></li>
+</ul>
+<div id="aiSummaryBox" style="display:none;background:var(--green-pale);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;border:1px solid var(--border)">
+<p style="font-size:.82rem;color:var(--text-mid);line-height:1.6" id="aiSummaryText"></p>
+</div>
+<button class="btn-primary" id="viewReportBtn" style="display:none" onclick="showReportView()">View Full Report →</button>
+<button class="btn-outline" id="cancelAnalysisBtn" onclick="showUploadView()" style="margin-top:10px">Cancel</button>
+</div>
+
+<!-- REPORT VIEW -->
+<div id="damage-report-view" style="display:none">
+<button class="back-btn" onclick="goToTab('home')">‹ Dashboard</button>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+<div class="content-header" style="margin:0"><h2>📄 Damage Report</h2></div>
+<span class="badge green">Complete</span>
+</div>
+<div class="complete-badge">
+<div class="check-big">✅</div>
+<h3>Analysis Complete</h3>
+<p id="reportCompleteSub">AI has generated your damage assessment.</p>
+</div>
+<div class="report-summary">
+<div class="report-total">
+<div class="label">Total Estimated Loss</div>
+<div class="amount" id="reportTotal">$24,850 <span class="currency">USD</span></div>
+</div>
+<h4 style="font-size:.88rem;color:var(--text-light);margin-bottom:8px;font-weight:600">DAMAGE BREAKDOWN</h4>
+<div id="reportBreakdown">
+<div class="breakdown-item"><span class="item-name">🌊 Flooded Fields</span><span class="item-val">$8,500</span></div>
+<div class="breakdown-item"><span class="item-name">🌾 Destroyed Crops</span><span class="item-val">$7,200</span></div>
+<div class="breakdown-item"><span class="item-name">🏗️ Damaged Infrastructure</span><span class="item-val">$6,150</span></div>
+<div class="breakdown-item"><span class="item-name">🐄 Lost Livestock</span><span class="item-val">$3,000</span></div>
+</div>
+<div class="detail-grid">
+<div class="detail-item"><div class="d-label">Location</div><div class="d-val" id="reportLocation">Saint George Parish</div></div>
+<div class="detail-item"><div class="d-label">Date</div><div class="d-val" id="reportDate">June 11, 2026</div></div>
+<div class="detail-item"><div class="d-label">Report ID</div><div class="d-val" id="reportId">RPT-2026-0611-001</div></div>
+<div class="detail-item"><div class="d-label">Severity</div><div class="d-val" id="reportSeverity" style="color:var(--red)">⬆ HIGH</div></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn-primary" onclick="downloadReport()">⬇ Download</button>
+<button class="btn-outline" onclick="showToast('Report shared via WhatsApp!')">↗ Share</button>
+</div>
+<div style="margin-top:16px">
+<button class="btn-secondary" onclick="showBeforeAfter()">🔍 Before & After Comparison</button>
+</div>
+</div>
+
+<!-- BEFORE/AFTER VIEW -->
+<div id="damage-compare-view" style="display:none">
+<button class="back-btn" onclick="showReportView()">‹ Back to Report</button>
+<div class="content-header"><h2>🔍 Before & After</h2><p>AI satellite comparison analysis</p></div>
+<div class="compare-card">
+<div class="compare-imgs">
+<div class="compare-img"><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&h=200&fit=crop" alt="Before"><div class="compare-label">Before (Mar 10)</div></div>
+<div class="compare-img"><img src="https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=300&h=200&fit=crop" alt="After"><div class="compare-label after">After (May 31)</div></div>
+</div>
+<div class="compare-body">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<strong style="font-size:.88rem;color:var(--text-dark)">AI Analysis Result</strong>
+<span style="color:var(--red);font-weight:700;font-size:.8rem">⚠ Damage Detected</span>
+</div>
+<div class="compare-stat"><span class="c-key">Affected Area</span><span class="c-val" id="cmp-area">2.4 km²</span></div>
+<div class="compare-stat"><span class="c-key">Damage Severity</span><span class="c-val red" id="cmp-sev">High</span></div>
+<div class="compare-stat"><span class="c-key">Change Detected</span><span class="c-val red">+78%</span></div>
+<div class="compare-stat"><span class="c-key">Crops Lost</span><span class="c-val">~340 acres</span></div>
+</div>
+</div>
+<button class="btn-primary" onclick="goToTab('map')">View on Live Map</button>
+</div>
+</div>
+
+<!-- ── COORD ── -->
+<div id="tab-coord" class="content" style="display:none">
+<button class="back-btn" onclick="goToTab('home')">‹ Dashboard</button>
+<div class="content-header"><h2>🤝 Emergency Coordination</h2><p>Manage resources and response teams</p></div>
+<div class="coord-grid">
+<div class="coord-card" onclick="showToast('Affected Areas: 4 zones active')"><div class="cc-icon">📍</div><h4>Affected Areas</h4><p>View and track affected locations</p></div>
+<div class="coord-card" onclick="goToTab('alerts');toggleSendAlert()"><div class="cc-icon">🔔</div><h4>Send Alerts</h4><p>Send emergency notifications</p></div>
+<div class="coord-card" onclick="showToast('3 shelters active – 78% capacity')"><div class="cc-icon">🏠</div><h4>Shelter Monitoring</h4><p>Monitor shelters in real time</p></div>
+<div class="coord-card" onclick="showToast('14 resource teams deployed')"><div class="cc-icon">📦</div><h4>Resource Tracking</h4><p>Track and manage resources</p></div>
+</div>
+<div class="section-hdr"><h3>🗺️ High-Risk Zones</h3></div>
+<div class="map-container" style="height:200px">
+<canvas id="coord-map" height="200"></canvas>
+<div class="map-overlay-legend">
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--red)"></div> Critical</div>
+<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--amber)"></div> High Risk</div>
+</div>
+</div>
+<button class="btn-primary" onclick="goToTab('map')" style="margin-bottom:20px">View Full Live Map →</button>
+<div class="section-hdr"><h3>🚁 Active Response Teams</h3></div>
+<div class="alert-card green"><div class="alert-icon">🚁</div><div class="alert-body"><div class="alert-title">Search & Rescue Team Alpha</div><div class="alert-sub">Saint George – 8 personnel deployed</div><div class="alert-meta"><span class="alert-time">Active</span><span class="badge green">DEPLOYED</span></div></div></div>
+<div class="alert-card green"><div class="alert-icon">🚑</div><div class="alert-body"><div class="alert-title">Medical Response Unit 3</div><div class="alert-sub">St. Ann Bay Shelter – treating 24 patients</div><div class="alert-meta"><span class="alert-time">Active</span><span class="badge green">ON SITE</span></div></div></div>
+<div class="alert-card amber"><div class="alert-icon">🚜</div><div class="alert-body"><div class="alert-title">Road Clearance Team</div><div class="alert-sub">Westmoreland Highway A1 – 60% complete</div><div class="alert-meta"><span class="alert-time">In Progress</span><span class="badge amber">ONGOING</span></div></div></div>
+</div>
+
+<!-- ── REPORTS ── -->
+<div id="tab-reports" class="content" style="display:none">
+<div class="content-header"><h2>📋 All Reports</h2><p id="reports-subtitle">24 damage assessment reports</p></div>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button onclick="filterReports('all')" id="rf-all" class="filter-btn active-filter">All</button>
+<button onclick="filterReports('pending')" id="rf-pending" class="filter-btn">Pending</button>
+<button onclick="filterReports('review')" id="rf-review" class="filter-btn">Under Review</button>
+<button onclick="filterReports('done')" id="rf-done" class="filter-btn">Done</button>
+</div>
+<div id="reports-list">
+<div class="report-list-item" data-status="done" onclick="openReportDetail('RPT-2026-0531-001','River Flooding – Saint George','$24,850','Saint George','May 31, 2026','HIGH','Complete')">
+<div class="rli-top"><div><div class="rli-title">River Flooding – Saint George</div><div class="rli-id">RPT-2026-0531-001</div></div><span class="badge red">HIGH</span></div>
+<div class="rli-meta"><span>📅 May 31, 2026</span><span>💰 $24,850</span><span>✓ Complete</span></div>
+</div>
+<div class="report-list-item" data-status="review" onclick="openReportDetail('RPT-2026-0530-002','Crop Damage – Portland','$12,400','Portland','May 30, 2026','MEDIUM','Under Review')">
+<div class="rli-top"><div><div class="rli-title">Crop Damage – Portland</div><div class="rli-id">RPT-2026-0530-002</div></div><span class="badge amber">MEDIUM</span></div>
+<div class="rli-meta"><span>📅 May 30, 2026</span><span>💰 $12,400</span><span>⏳ Review</span></div>
+</div>
+<div class="report-list-item" data-status="review" onclick="openReportDetail('RPT-2026-0528-003','Road Infrastructure – Clarendon','$8,750','Clarendon','May 28, 2026','MEDIUM','Under Review')">
+<div class="rli-top"><div><div class="rli-title">Road Infrastructure – Clarendon</div><div class="rli-id">RPT-2026-0528-003</div></div><span class="badge amber">MEDIUM</span></div>
+<div class="rli-meta"><span>📅 May 28, 2026</span><span>💰 $8,750</span><span>⏳ Review</span></div>
+</div>
+<div class="report-list-item" data-status="pending" onclick="openReportDetail('RPT-2026-0525-004','Landslide Damage – Westmoreland','$31,200','Westmoreland','May 25, 2026','HIGH','Pending')">
+<div class="rli-top"><div><div class="rli-title">Landslide Damage – Westmoreland</div><div class="rli-id">RPT-2026-0525-004</div></div><span class="badge red">HIGH</span></div>
+<div class="rli-meta"><span>📅 May 25, 2026</span><span>💰 $31,200</span><span>⏳ Pending</span></div>
+</div>
+<div class="report-list-item" data-status="done" onclick="openReportDetail('RPT-2026-0522-005','Wind Damage – St. Ann','$5,600','St. Ann','May 22, 2026','LOW','Complete')">
+<div class="rli-top"><div><div class="rli-title">Wind Damage – St. Ann</div><div class="rli-id">RPT-2026-0522-005</div></div><span class="badge green">LOW</span></div>
+<div class="rli-meta"><span>📅 May 22, 2026</span><span>💰 $5,600</span><span>✓ Complete</span></div>
+</div>
+<div class="report-list-item" data-status="pending" onclick="openReportDetail('RPT-2026-0520-006','Storm Surge – Saint Elizabeth','$18,300','Saint Elizabeth','May 20, 2026','HIGH','Pending')">
+<div class="rli-top"><div><div class="rli-title">Storm Surge – Saint Elizabeth</div><div class="rli-id">RPT-2026-0520-006</div></div><span class="badge red">HIGH</span></div>
+<div class="rli-meta"><span>📅 May 20, 2026</span><span>💰 $18,300</span><span>⏳ Pending</span></div>
+</div>
+</div>
+<button class="btn-primary mt-16" onclick="goToTab('damage')">+ New Damage Report</button>
+</div>
+
+<!-- ── FARMER ── -->
+<div id="tab-farmer" class="content" style="display:none">
+<button class="back-btn" onclick="goToTab('home')">‹ Dashboard</button>
+<div class="content-header"><h2>🌱 Farmer Recovery</h2><p>Support and assistance programs</p></div>
+<ul class="farmer-list">
+<li class="farmer-item" onclick="showToast('Document Losses – Upload your loss evidence')"><div class="farmer-item-icon">📄</div><div class="farmer-item-text"><h4>Document Losses</h4><p>Upload and store proof of losses</p></div><span style="color:var(--text-light);font-size:1.2rem">›</span></li>
+<li class="farmer-item" onclick="showToast('Recovery Progress – 62% of farmers on track')"><div class="farmer-item-icon">📊</div><div class="farmer-item-text"><h4>Track Recovery Progress</h4><p>Monitor recovery activities</p></div><span style="color:var(--text-light);font-size:1.2rem">›</span></li>
+<li class="farmer-item" onclick="goToTab('damage')"><div class="farmer-item-icon">📋</div><div class="farmer-item-text"><h4>Generate AI Reports</h4><p>AI damage reports for assistance programs</p></div><span style="color:var(--text-light);font-size:1.2rem">›</span></li>
+<li class="farmer-item" onclick="showToast('Grant Support – 3 programs available')"><div class="farmer-item-icon">🏦</div><div class="farmer-item-text"><h4>Grant & Insurance Support</h4><p>Apply for grants and insurance claims</p></div><span style="color:var(--text-light);font-size:1.2rem">›</span></li>
+</ul>
+<div class="section-hdr" style="margin-top:8px"><h3>📈 Recovery Stats</h3></div>
+<div class="progress-card"><div class="progress-label"><span>Farmers Registered</span><strong>248</strong></div><div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div></div>
+<div class="progress-card"><div class="progress-label"><span>Claims Processed</span><strong>74%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:74%"></div></div></div>
+<div class="progress-card"><div class="progress-label"><span>Grants Disbursed</span><strong>$142,000</strong></div><div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div></div>
+<div class="help-card">
+<div><h4>Need Help?</h4><p>Access farmer support resources.</p></div>
+<button class="btn-help" onclick="showToast('Connecting to support hotline…')">Get Help</button>
+</div>
+</div>
+
+</div><!-- end tab area -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+<button class="nav-item active" id="nav-home" onclick="goToTab('home')">
+<svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
+</button>
+<button class="nav-item" id="nav-map" onclick="goToTab('map')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Map
+</button>
+<button class="nav-item" id="nav-alerts" onclick="goToTab('alerts')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alerts
+</button>
+<button class="nav-item" id="nav-reports" onclick="goToTab('reports')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Reports
+</button>
+<button class="nav-item" id="nav-profile" onclick="showToast('Profile – Apex Team · ResilienceAI v1.0')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+</button>
+</nav>
+</div>
+
+<!-- REPORT DETAIL MODAL -->
+<div class="modal-overlay" id="reportModal" onclick="closeModal(event)">
+<div class="modal-sheet">
+<div class="modal-handle"></div>
+<button class="modal-close" onclick="closeReportModal()">✕</button>
+<h3 id="modal-title" style="font-size:1.05rem;color:var(--green-dark);margin-bottom:4px;padding-right:40px"></h3>
+<div id="modal-id" style="font-size:.75rem;color:var(--text-light);margin-bottom:16px"></div>
+<div class="report-summary" style="margin-bottom:12px">
+<div class="report-total" style="margin-bottom:12px">
+<div class="label">Estimated Loss</div>
+<div class="amount" id="modal-amount"></div>
+</div>
+<div class="detail-grid">
+<div class="detail-item"><div class="d-label">Location</div><div class="d-val" id="modal-loc"></div></div>
+<div class="detail-item"><div class="d-label">Date</div><div class="d-val" id="modal-date"></div></div>
+<div class="detail-item"><div class="d-label">Severity</div><div class="d-val" id="modal-sev"></div></div>
+<div class="detail-item"><div class="d-label">Status</div><div class="d-val" id="modal-status"></div></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn-primary" onclick="showToast('Report downloaded!');closeReportModal()">⬇ Download</button>
+<button class="btn-outline" onclick="showToast('Report shared!');closeReportModal()">↗ Share</button>
+</div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let alertCount = 8;
+let reportCount = 24;
+let uploadedFiles = [
+{id:1,src:'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=144',name:'flood1.jpg'},
+{id:2,src:'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=144',name:'flood2.jpg'},
+{id:3,src:'https://images.unsplash.com/photo-1465056836041-57e4a8a3b840?w=144',name:'damage3.jpg'},
+];
+let nextId = 4;
+let currentUser = 'Emergency User';
+let aiResult = null; // stores last AI analysis
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+function doLogin() {
+const email = document.getElementById('login-email').value.trim();
+const pwd = document.getElementById('login-pwd').value;
+const emailEl = document.getElementById('login-email');
+const pwdEl = document.getElementById('login-pwd');
+const emailErr = document.getElementById('email-error');
+const pwdErr = document.getElementById('pwd-error');
+let valid = true;
+if (!email || !email.includes('@')) { emailEl.classList.add('error'); emailErr.classList.add('show'); valid=false; }
+else { emailEl.classList.remove('error'); emailErr.classList.remove('show'); }
+if (pwd.length < 6) { pwdEl.classList.add('error'); pwdErr.classList.add('show'); valid=false; }
+else { pwdEl.classList.remove('error'); pwdErr.classList.remove('show'); }
+if (!valid) return;
+const name = email.split('@')[0];
+const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+currentUser = displayName;
+document.getElementById('topbar-username').textContent = displayName;
+document.getElementById('topbar-avatar').textContent = displayName.charAt(0).toUpperCase();
+document.getElementById('drawer-avatar').textContent = displayName.charAt(0).toUpperCase();
+document.getElementById('drawer-name').textContent = displayName;
+document.getElementById('screen-login').classList.remove('active');
+document.getElementById('screen-app').classList.add('active');
+setTimeout(() => { document.getElementById('prog-bar').style.width = '87%'; }, 300);
+setTimeout(() => { drawMap('mini-map', 200, true); drawMap('full-map', 320, false); drawMap('coord-map', 200, false); }, 400);
+renderThumbs();
+showToast('Welcome, ' + displayName + '! 👋');
+}
+
+function doLogout() {
+toggleDrawer();
+document.getElementById('screen-app').classList.remove('active');
+document.getElementById('screen-login').classList.add('active');
+showToast('Logged out successfully');
+}
+
+document.addEventListener('keydown', e => {
+if (e.key === 'Enter' && document.getElementById('screen-login').classList.contains('active')) doLogin();
+});
+
+// ═══════════════════════════════════════════
+// DRAWER
+// ═══════════════════════════════════════════
+function toggleDrawer() {
+document.getElementById('drawerOverlay').classList.toggle('open');
+}
+function closeDrawer(e) {
+if (e.target === document.getElementById('drawerOverlay')) toggleDrawer();
+}
+function drawerNav(tab) {
+toggleDrawer();
+goToTab(tab);
+// Update active drawer item
+document.querySelectorAll('.drawer-nav-item').forEach(el => el.classList.remove('active'));
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+const navTabs = ['home','map','alerts','damage','reports'];
+const allTabs = ['home','map','alerts','damage','reports','coord','farmer'];
+
+function goToTab(name) {
+allTabs.forEach(t => {
+const el = document.getElementById('tab-'+t);
+if (el) el.style.display = 'none';
+});
+navTabs.forEach(t => {
+const nav = document.getElementById('nav-'+t);
+if (nav) nav.classList.remove('active');
+});
+const target = document.getElementById('tab-'+name);
+if (target) { target.style.display = 'block'; target.scrollTop = 0; }
+const nav = document.getElementById('nav-'+name);
+if (nav) nav.classList.add('active');
+if (name === 'damage') showUploadView();
+// Redraw maps when switching to map or coord tab
+if (name === 'map') setTimeout(() => drawMap('full-map', 320, false), 50);
+if (name === 'coord') setTimeout(() => drawMap('coord-map', 200, false), 50);
+}
+
+// ═══════════════════════════════════════════
+// CANVAS MAP — no external deps needed
+// ═══════════════════════════════════════════
+const incidents = [
+{x:.38, y:.35, color:'#ef4444', label:'Saint George\nFlood HIGH', icon:'🌊'},
+{x:.62, y:.58, color:'#f59e0b', label:'Kingston\nStorm Watch', icon:'🌀'},
+{x:.68, y:.22, color:'#2d9e52', label:'St. Ann\nShelter Open', icon:'🏠'},
+{x:.22, y:.65, color:'#ff8c00', label:'Westmoreland\nRoad Damage', icon:'🚧'},
+{x:.50, y:.72, color:'#ef4444', label:'Saint Elizabeth\nStorm Surge', icon:'⚠️'},
+];
+
+function drawMap(canvasId, h, mini) {
+const canvas = document.getElementById(canvasId);
+if (!canvas) return;
+canvas.width = canvas.parentElement.clientWidth || 340;
+canvas.height = h;
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// Background gradient (simulate satellite/map look)
+const bg = ctx.createLinearGradient(0, 0, W, H);
+bg.addColorStop(0, '#b8d9a0');
+bg.addColorStop(.4, '#a0c880');
+bg.addColorStop(.7, '#90b870');
+bg.addColorStop(1, '#80a860');
+ctx.fillStyle = bg;
+ctx.fillRect(0, 0, W, H);
+
+// Grid lines
+ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+ctx.lineWidth = 1;
+for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+// Roads (simple lines)
+ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(W*.1, H*.5); ctx.lineTo(W*.9, H*.5); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(W*.5, H*.1); ctx.lineTo(W*.5, H*.9); ctx.stroke();
+ctx.lineWidth = 1;
+ctx.beginPath(); ctx.moveTo(W*.2, H*.2); ctx.lineTo(W*.8, H*.8); ctx.stroke();
+
+// Water area
+ctx.fillStyle = 'rgba(100,160,220,0.35)';
+ctx.beginPath(); ctx.ellipse(W*.15, H*.8, W*.12, H*.1, 0, 0, Math.PI*2); ctx.fill();
+
+// Label
+ctx.fillStyle = 'rgba(0,0,0,0.4)';
+ctx.fillRect(0, 0, W, 22);
+ctx.fillStyle = '#fff';
+ctx.font = `600 ${mini?11:12}px Sora, sans-serif`;
+ctx.fillText('🌍 Jamaica Disaster Network — Live View', 10, 15);
+
+// Pins with pulse rings
+const t = Date.now();
+incidents.forEach((inc, i) => {
+const px = inc.x * W;
+const py = inc.y * H;
+const pulse = (Math.sin(t/600 + i*1.2) + 1) / 2;
+
+// Pulse ring
+ctx.beginPath();
+ctx.arc(px, py, 14 + pulse*8, 0, Math.PI*2);
+ctx.fillStyle = inc.color + '30';
+ctx.fill();
+
+// Pin circle
+ctx.beginPath();
+ctx.arc(px, py, 12, 0, Math.PI*2);
+ctx.fillStyle = '#fff';
+ctx.fill();
+ctx.strokeStyle = inc.color;
+ctx.lineWidth = 3;
+ctx.stroke();
+
+// Icon text
+ctx.font = '13px serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(inc.icon, px, py);
+
+if (!mini) {
+// Label above pin
+const lines = inc.label.split('\n');
+ctx.fillStyle = 'rgba(0,0,0,0.75)';
+const lw = Math.max(...lines.map(l => l.length)) * 5.5 + 10;
+ctx.beginPath();
+ctx.roundRect(px - lw/2, py - 40 - lines.length*14, lw, lines.length*14+6, 4);
+ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.font = `600 9px Sora, sans-serif`;
+lines.forEach((line, li) => {
+ctx.fillText(line, px, py - 40 - (lines.length - li - 1)*14 + 3);
+});
+}
+});
+
+ctx.textAlign = 'left';
+ctx.textBaseline = 'alphabetic';
+
+// Animate
+canvas._animFrame = requestAnimationFrame(() => drawMap(canvasId, h, mini));
+}
+
+// Stop animation when tab not visible
+document.addEventListener('visibilitychange', () => {
+if (document.hidden) {
+['mini-map','full-map','coord-map'].forEach(id => {
+const c = document.getElementById(id);
+if (c && c._animFrame) cancelAnimationFrame(c._animFrame);
+});
+}
+});
+
+// Handle canvas clicks to show pin info
+function setupMapClick(canvasId) {
+const canvas = document.getElementById(canvasId);
+if (!canvas) return;
+canvas.addEventListener('click', e => {
+const rect = canvas.getBoundingClientRect();
+const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+let hit = false;
+incidents.forEach(inc => {
+const px = inc.x * canvas.width, py = inc.y * canvas.height;
+const dist = Math.sqrt((mx-px)**2 + (my-py)**2);
+if (dist < 20) { showToast(inc.icon + ' ' + inc.label.replace('\n',' — ')); hit=true; }
+});
+if (!hit && canvasId !== 'mini-map') showToast('Tap a coloured pin for incident details');
+});
+}
+
+// ═══════════════════════════════════════════
+// DAMAGE FLOW
+// ═══════════════════════════════════════════
+function updateStepper(active) {
+for (let i = 1; i <= 3; i++) {
+const c = document.getElementById('step'+i);
+const l = document.getElementById('step'+i+'-lbl');
+if (i < active) { c.className='step-circle done'; c.textContent='✓'; l.className='step-label done'; }
+else if (i === active) { c.className='step-circle active'; c.textContent=i; l.className='step-label active'; }
+else { c.className='step-circle'; c.textContent=i; l.className='step-label'; }
+}
+for (let i = 1; i <= 2; i++) {
+document.getElementById('line'+i).className = 'step-line' + (i < active ? ' done' : '');
+}
+}
+
+function showUploadView() {
+document.getElementById('damage-upload-view').style.display = 'block';
+document.getElementById('damage-analysis-view').style.display = 'none';
+document.getElementById('damage-report-view').style.display = 'none';
+document.getElementById('damage-compare-view').style.display = 'none';
+updateStepper(1);
+renderThumbs();
+}
+
+// AI Analysis — real Claude API call with automatic fallback
+async function startAnalysis() {
+const location = document.getElementById('locationInput').value || 'Jamaica';
+const category = document.getElementById('damageCategory').value;
+document.getElementById('damage-upload-view').style.display = 'none';
+document.getElementById('damage-analysis-view').style.display = 'block';
+updateStepper(2);
+const aiBox = document.getElementById('aiBox');
+aiBox.innerHTML = `<div class="ai-pulse">🧠</div><h3>Analyzing images…</h3><p>Sending to ResilienceAI for assessment.</p><div class="loading-bar" style="margin-top:16px"><div class="loading-fill"></div></div>`;
+document.getElementById('detectionList').style.display = 'none';
+document.getElementById('aiSummaryBox').style.display = 'none';
+document.getElementById('viewReportBtn').style.display = 'none';
+document.getElementById('cancelAnalysisBtn').style.display = 'block';
+
+let result = null;
+try {
+const response = await fetch('https://api.anthropic.com/v1/messages', {
+method: 'POST',
+headers: {'Content-Type':'application/json'},
+body: JSON.stringify({
+model: 'claude-sonnet-4-20250514',
+max_tokens: 1000,
+messages: [{
+role: 'user',
+content: `You are ResilienceAI, an AI disaster response system for Caribbean farmers. Analyze damage from a "${category}" event in "${location}", Jamaica. Generate a realistic damage assessment report in JSON format only, no other text:
+{
+"total": number (USD, 5000-50000),
+"breakdown": [
+{"name": "emoji Item name", "amount": number},
+{"name": "emoji Item name", "amount": number},
+{"name": "emoji Item name", "amount": number},
+{"name": "emoji Item name", "amount": number}
+],
+"severity": "HIGH" or "MEDIUM" or "LOW",
+"affectedArea": "X.X km²",
+"confidence": [94, 88, 76, 61],
+"summary": "Two sentence professional summary of the damage and recommended immediate actions."
+}`
+}]
+})
+});
+if (response.ok) {
+const data = await response.json();
+const text = data.content.map(b => b.text || '').join('');
+const clean = text.replace(/```json|```/g,'').trim();
+result = JSON.parse(clean);
+}
+} catch(e) {
+// Network blocked or parse error — use demo fallback
+result = null;
+}
+
+// Fallback demo data if API unreachable
+if (!result) {
+const demos = {
+'Crop & Field Damage': { total:24850, breakdown:[{name:'🌊 Flooded Fields',amount:8500},{name:'🌾 Destroyed Crops',amount:7200},{name:'🏗️ Irrigation Damage',amount:6150},{name:'🌱 Seedling Loss',amount:3000}], severity:'HIGH', affectedArea:'2.4 km²', confidence:[94,88,76,61], summary:`Severe flooding detected across agricultural fields in ${location}. Immediate drainage intervention and crop assessment required within 48 hours.` },
+'Infrastructure Damage': { total:31400, breakdown:[{name:'🏗️ Road & Bridge',amount:14200},{name:'🏚️ Buildings',amount:9800},{name:'⚡ Electrical',amount:4900},{name:'💧 Water Systems',amount:2500}], severity:'HIGH', affectedArea:'3.1 km²', confidence:[96,82,74,58], summary:`Critical infrastructure damage identified in ${location} following the storm event. Road closures and utility disruptions require emergency response coordination.` },
+'Livestock Loss': { total:18600, breakdown:[{name:'🐄 Cattle Loss',amount:9200},{name:'🐔 Poultry Loss',amount:4800},{name:'🏠 Pen Damage',amount:3100},{name:'🌾 Feed Loss',amount:1500}], severity:'MEDIUM', affectedArea:'1.8 km²', confidence:[91,85,70,55], summary:`Significant livestock losses recorded in ${location}. Veterinary support and emergency feed supplies should be dispatched within 24 hours.` },
+'Mixed Damage': { total:42300, breakdown:[{name:'🌾 Crop Damage',amount:16800},{name:'🐄 Livestock Loss',amount:11200},{name:'🏗️ Infrastructure',amount:9800},{name:'📦 Equipment Loss',amount:4500}], severity:'HIGH', affectedArea:'4.2 km²', confidence:[93,86,79,64], summary:`Widespread mixed damage across multiple sectors detected in ${location}. Multi-agency response recommended with priority given to livestock rescue and crop documentation.` }
+};
+result = demos[category] || demos['Crop & Field Damage'];
+}
+
+aiResult = result;
+
+// Update confidence bars
+const items = document.querySelectorAll('#detectionList .confidence-fill');
+items.forEach((bar, i) => { bar.style.width = (result.confidence[i] || 70) + '%'; });
+const detected = document.querySelectorAll('#detectionList .detected');
+detected.forEach((el, i) => { el.textContent = (result.confidence[i] || 70) + '%'; });
+
+aiBox.innerHTML = `<div style="font-size:2rem;margin-bottom:10px">✅</div><h3>Analysis Complete!</h3><p>${result.breakdown.length} damage types identified.</p>`;
+document.getElementById('detectionList').style.display = 'block';
+document.getElementById('aiSummaryBox').style.display = 'block';
+document.getElementById('aiSummaryText').textContent = result.summary;
+document.getElementById('viewReportBtn').style.display = 'block';
+document.getElementById('cancelAnalysisBtn').style.display = 'none';
+}
+
+function showReportView() {
+if (!aiResult) aiResult = { total:24850, breakdown:[{name:'🌊 Flooded Fields',amount:8500},{name:'🌾 Destroyed Crops',amount:7200},{name:'🏗️ Infrastructure',amount:6150},{name:'🐄 Livestock',amount:3000}], severity:'HIGH', affectedArea:'2.4 km²' };
+const location = document.getElementById('locationInput').value || 'Jamaica';
+const now = new Date();
+const dateStr = now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+const rId = 'RPT-'+now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+'-'+(reportCount+1).toString().padStart(3,'0');
+
+document.getElementById('reportTotal').innerHTML = '$' + aiResult.total.toLocaleString() + ' <span class="currency">USD</span>';
+document.getElementById('reportLocation').textContent = location;
+document.getElementById('reportDate').textContent = dateStr;
+document.getElementById('reportId').textContent = rId;
+document.getElementById('reportSeverity').textContent = aiResult.severity === 'HIGH' ? '⬆ HIGH' : aiResult.severity === 'MEDIUM' ? '→ MEDIUM' : '⬇ LOW';
+document.getElementById('reportSeverity').style.color = aiResult.severity === 'HIGH' ? 'var(--red)' : aiResult.severity === 'MEDIUM' ? 'var(--amber)' : 'var(--green-bright)';
+document.getElementById('cmp-area').textContent = aiResult.affectedArea;
+document.getElementById('reportCompleteSub').textContent = aiResult.summary || 'AI damage assessment complete.';
+
+const breakdown = document.getElementById('reportBreakdown');
+breakdown.innerHTML = aiResult.breakdown.map(b => `<div class="breakdown-item"><span class="item-name">${b.name}</span><span class="item-val">$${b.amount.toLocaleString()}</span></div>`).join('');
+
+// Save to in-memory list and update count
+reportCount++;
+document.getElementById('stat-reports').textContent = reportCount;
+document.getElementById('donut-total').textContent = reportCount;
+
+// Add to reports list
+const list = document.getElementById('reports-list');
+const newItem = document.createElement('div');
+newItem.className = 'report-list-item';
+newItem.setAttribute('data-status','done');
+newItem.onclick = () => openReportDetail(rId, location + ' – ' + document.getElementById('damageCategory').value, '$'+aiResult.total.toLocaleString(), location, dateStr, aiResult.severity, 'Complete');
+newItem.innerHTML = `<div class="rli-top"><div><div class="rli-title">${location} – ${document.getElementById('damageCategory').value}</div><div class="rli-id">${rId}</div></div><span class="badge ${aiResult.severity==='HIGH'?'red':aiResult.severity==='MEDIUM'?'amber':'green'}">${aiResult.severity}</span></div><div class="rli-meta"><span>📅 ${dateStr}</span><span>💰 $${aiResult.total.toLocaleString()}</span><span>✓ Complete</span></div>`;
+list.insertBefore(newItem, list.firstChild);
+
+document.getElementById('damage-analysis-view').style.display = 'none';
+document.getElementById('damage-report-view').style.display = 'block';
+updateStepper(3);
+}
+
+function showBeforeAfter() {
+document.getElementById('damage-report-view').style.display = 'none';
+document.getElementById('damage-compare-view').style.display = 'block';
+}
+
+function downloadReport() {
+showToast('📥 Report downloaded as PDF!');
+}
+
+// ═══════════════════════════════════════════
+// THUMBNAILS
+// ═══════════════════════════════════════════
+function renderThumbs() {
+const row = document.getElementById('thumbRow');
+if (!row) return;
+row.innerHTML = '';
+uploadedFiles.forEach(f => {
+const wrap = document.createElement('div');
+wrap.className = 'thumb-wrap';
+wrap.innerHTML = `<img src="${f.src}" alt="${f.name}"><button class="thumb-remove" onclick="removeThumb(${f.id})">✕</button>`;
+row.appendChild(wrap);
+});
+}
+
+function removeThumb(id) {
+uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+renderThumbs();
+showToast('Photo removed');
+}
+
+function handleFileInput(input) {
+Array.from(input.files).forEach(file => {
+const reader = new FileReader();
+reader.onload = e => { uploadedFiles.push({id:nextId++, src:e.target.result, name:file.name}); renderThumbs(); };
+reader.readAsDataURL(file);
+});
+showToast(input.files.length + ' file(s) added!');
+input.value = '';
+}
+
+// ═══════════════════════════════════════════
+// SEND ALERT
+// ═══════════════════════════════════════════
+function toggleSendAlert() {
+const form = document.getElementById('sendAlertForm');
+form.classList.toggle('open');
+if (form.classList.contains('open')) form.scrollIntoView({behavior:'smooth'});
+}
+
+function sendAlert() {
+const type = document.getElementById('alert-type').value;
+const severity = document.getElementById('alert-severity').value;
+const location = document.getElementById('alert-location').value.trim() || 'Jamaica';
+const message = document.getElementById('alert-message').value.trim();
+if (!message) { showToast('Please enter an alert message'); return; }
+
+const parts = type.split(' ');
+const icon = parts[0];
+const typeName = parts.slice(1).join(' ');
+const badgeClass = severity === 'HIGH' ? 'red' : severity === 'MODERATE' ? 'amber' : 'green';
+const cardClass = severity === 'HIGH' ? '' : severity === 'MODERATE' ? ' amber' : ' green';
+const now = new Date();
+const timeStr = 'Just now';
+
+// Add to alerts list
+const list = document.getElementById('alerts-list');
+const newAlert = document.createElement('div');
+newAlert.className = 'alert-full';
+newAlert.setAttribute('data-severity', severity);
+newAlert.style.borderLeft = `4px solid ${severity==='HIGH'?'var(--red)':severity==='MODERATE'?'var(--amber)':'var(--green-bright)'}`;
+newAlert.innerHTML = `
+<div class="alert-full-header"><span class="icon">${icon}</span><h4>${typeName} – ${location}</h4><span class="badge ${badgeClass}">${severity}</span></div>
+<p>${message}</p>
+<div class="alert-full-footer"><span>📍 ${location}</span><span>${timeStr}</span></div>`;
+list.insertBefore(newAlert, list.firstChild);
+
+// Update counts
+alertCount++;
+document.getElementById('stat-alerts').textContent = alertCount;
+document.getElementById('drawer-alert-count').textContent = alertCount;
+document.getElementById('alerts-subtitle').textContent = alertCount + ' active alerts across Jamaica';
+
+// Also add to home tab recent alerts
+const homeAlertArea = document.querySelector('#tab-home .alert-card');
+const newHomeAlert = document.createElement('div');
+newHomeAlert.className = 'alert-card' + cardClass;
+newHomeAlert.onclick = () => goToTab('alerts');
+newHomeAlert.innerHTML = `<div class="alert-icon">${icon}</div><div class="alert-body"><div class="alert-title">${typeName} – ${location}</div><div class="alert-sub">${message.substring(0,60)}${message.length>60?'…':''}</div><div class="alert-meta"><span class="alert-time">Just now</span><span class="badge ${badgeClass}">${severity}</span></div></div>`;
+homeAlertArea.parentNode.insertBefore(newHomeAlert, homeAlertArea);
+
+// Reset form
+document.getElementById('alert-location').value = '';
+document.getElementById('alert-message').value = '';
+document.getElementById('sendAlertForm').classList.remove('open');
+showToast('🚨 Alert sent to ' + alertCount + ' responders!');
+}
+
+// ═══════════════════════════════════════════
+// ALERT FILTERS
+// ═══════════════════════════════════════════
+function filterAlerts(filter) {
+document.querySelectorAll('[id^="af-"]').forEach(b => b.classList.remove('active-filter'));
+document.getElementById('af-'+filter).classList.add('active-filter');
+let shown = 0;
+document.querySelectorAll('#alerts-list .alert-full').forEach(item => {
+const sev = item.getAttribute('data-severity');
+const visible = filter === 'all' || sev === filter;
+item.style.display = visible ? 'block' : 'none';
+if (visible) shown++;
+});
+showToast(shown + ' alert' + (shown!==1?'s':'') + ' shown');
+}
+
+// ═══════════════════════════════════════════
+// REPORT FILTERS
+// ═══════════════════════════════════════════
+function filterReports(filter) {
+document.querySelectorAll('[id^="rf-"]').forEach(b => b.classList.remove('active-filter'));
+document.getElementById('rf-'+filter).classList.add('active-filter');
+let shown = 0;
+document.querySelectorAll('#reports-list .report-list-item').forEach(item => {
+const status = item.getAttribute('data-status');
+const visible = filter === 'all' || status === filter;
+item.style.display = visible ? 'block' : 'none';
+if (visible) shown++;
+});
+document.getElementById('reports-subtitle').textContent = shown + ' report' + (shown!==1?'s':'') + ' shown';
+}
+
+// ═══════════════════════════════════════════
+// REPORT DETAIL MODAL
+// ═══════════════════════════════════════════
+function openReportDetail(id, title, amount, loc, date, sev, status) {
+document.getElementById('modal-title').textContent = title;
+document.getElementById('modal-id').textContent = id;
+document.getElementById('modal-amount').textContent = amount + ' USD';
+document.getElementById('modal-loc').textContent = loc;
+document.getElementById('modal-date').textContent = date;
+document.getElementById('modal-sev').textContent = sev;
+document.getElementById('modal-sev').style.color = sev==='HIGH'?'var(--red)':sev==='MEDIUM'?'var(--amber)':'var(--green-bright)';
+document.getElementById('modal-status').textContent = status;
+document.getElementById('reportModal').classList.add('open');
+}
+function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
+function closeModal(e) { if (e.target === document.getElementById('reportModal')) closeReportModal(); }
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.classList.add('show');
+clearTimeout(toastTimer);
+toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+renderThumbs();
+setTimeout(() => {
+setupMapClick('mini-map');
+setupMapClick('full-map');
+setupMapClick('coord-map');
+}, 500);
+});
+</script>
+</body>
+</html>
