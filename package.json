@@ -1,0 +1,12 @@
+{
+  "name": "resilience-ai",
+  "version": "1.0.0",
+  "description": "Disaster response platform — frontend + minimal Claude-powered backend",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

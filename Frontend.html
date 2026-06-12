@@ -1119,39 +1119,22 @@ document.getElementById('cancelAnalysisBtn').style.display = 'block';
 
 let result = null;
 try {
-const response = await fetch('https://api.anthropic.com/v1/messages', {
+// Send the uploaded photos to our backend, which runs Claude vision analysis
+// server-side (keeping the API key off the client). Falls back to demo data
+// below if the backend is unreachable or has no API key configured.
+const images = (typeof uploadedFiles !== 'undefined' ? uploadedFiles : [])
+.filter(f => f.src && f.src.startsWith('data:image/'))
+.map(f => f.src);
+const response = await fetch('/api/damage-assessment', {
 method: 'POST',
 headers: {'Content-Type':'application/json'},
-body: JSON.stringify({
-model: 'claude-sonnet-4-20250514',
-max_tokens: 1000,
-messages: [{
-role: 'user',
-content: `You are ResilienceAI, an AI disaster response system for Caribbean farmers. Analyze damage from a "${category}" event in "${location}", Jamaica. Generate a realistic damage assessment report in JSON format only, no other text:
-{
-"total": number (USD, 5000-50000),
-"breakdown": [
-{"name": "emoji Item name", "amount": number},
-{"name": "emoji Item name", "amount": number},
-{"name": "emoji Item name", "amount": number},
-{"name": "emoji Item name", "amount": number}
-],
-"severity": "HIGH" or "MEDIUM" or "LOW",
-"affectedArea": "X.X km²",
-"confidence": [94, 88, 76, 61],
-"summary": "Two sentence professional summary of the damage and recommended immediate actions."
-}`
-}]
-})
+body: JSON.stringify({ location, category, images })
 });
 if (response.ok) {
-const data = await response.json();
-const text = data.content.map(b => b.text || '').join('');
-const clean = text.replace(/```json|```/g,'').trim();
-result = JSON.parse(clean);
+result = await response.json();
 }
 } catch(e) {
-// Network blocked or parse error — use demo fallback
+// Backend unreachable or parse error — use demo fallback
 result = null;
 }
 
